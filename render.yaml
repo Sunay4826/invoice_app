@@ -1,0 +1,33 @@
+services:
+  - type: web
+    name: invoice-backend
+    env: node
+    rootDir: backend
+    buildCommand: npm install
+    startCommand: npm start
+    plan: free
+    envVars:
+      - key: PUPPETEER_SKIP_DOWNLOAD
+        value: "1"
+      - key: CHROME_BIN
+        value: /usr/bin/chromium
+      - key: DATABASE_URL
+        sync: false
+      - key: DIRECT_URL
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+      - key: FRONTEND_URL
+        sync: false
+    aptPackages:
+      - chromium
+
+staticSites:
+  - name: invoice-frontend
+    env: static
+    rootDir: frontend
+    buildCommand: npm install && npm run build
+    staticPublishPath: build
+    envVars:
+      - key: REACT_APP_API_URL
+        sync: false

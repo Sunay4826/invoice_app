@@ -435,9 +435,15 @@ const getInvoicePDF = async (req, res) => {
 
     const html = generateInvoiceHTML(invoice);
 
+    const executablePath =
+      process.env.PUPPETEER_EXECUTABLE_PATH ||
+      process.env.CHROME_BIN ||
+      undefined;
+
     browser = await puppeteer.launch({
       args: ["--no-sandbox", "--disable-setuid-sandbox"],
       headless: "new",
+      executablePath,
     });
     const page = await browser.newPage();
     await page.setContent(html, { waitUntil: "networkidle0" });
