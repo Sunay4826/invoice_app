@@ -16,14 +16,14 @@ function Sidebar() {
     <aside className="sidebar">
       <div className="sidebar-logo">
         <h1>Invoice<span>Flow</span></h1>
-        <p>Invoice Manager</p>
+        <p>Billing Workspace</p>
       </div>
       <nav className="sidebar-nav">
         <NavLink to="/" end className={({ isActive }) => `nav-item ${isActive ? "active" : ""}`}>
-          <span className="nav-icon">📋</span> All Invoices
+          <span className="nav-icon">📋</span> Invoices
         </NavLink>
         <NavLink to="/create" className={({ isActive }) => `nav-item ${isActive ? "active" : ""}`}>
-          <span className="nav-icon">✨</span> New Invoice
+          <span className="nav-icon">✨</span> Create Invoice
         </NavLink>
         <div className="nav-divider" />
         <div className="nav-meta">Signed in as</div>

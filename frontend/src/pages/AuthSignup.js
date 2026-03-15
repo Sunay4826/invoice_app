@@ -38,8 +38,8 @@ export default function Signup() {
   return (
     <div className="auth-page">
       <div className="auth-card">
-        <div className="auth-title">Create account</div>
-        <div className="auth-sub">Sign up with email, username and password</div>
+        <div className="auth-title">Create your account</div>
+        <div className="auth-sub">Set up billing in less than a minute.</div>
 
         <form onSubmit={handleSubmit}>
           <div className="form-group">

@@ -20,7 +20,7 @@ const defaultForm = {
   earlyPayDiscount: 0,
   earlyPayDate: "",
   bankDetails: { accountHolderName: "", accountNumber: "", ifsc: "", accountType: "", bankName: "", upi: "" },
-  termsAndConditions: "1. Please pay within 15 days from the date of invoice. Overdue interest @ 14% will be charged on delayed payments.\n2. Please quote invoice number when remitting funds.",
+  termsAndConditions: "Payment is due within 15 days from the invoice date.\nLate payments may incur an annual interest charge of 14%.\nPlease include the invoice number when making payment.",
   additionalNotes: "",
   status: "draft",
 };
@@ -65,32 +65,32 @@ function InvoicePreview({ form, totals }) {
     <div className="preview-card">
       <div className="preview-header">
         <div>
-          <div className="preview-title">Invoice</div>
-          <div className="preview-meta">
-            <div>Invoice# <strong>{form.invoiceNumber || "—"}</strong></div>
-            <div>Invoice Date <strong>{form.invoiceDate || "—"}</strong></div>
-            <div>Due Date <strong>{form.dueDate || "—"}</strong></div>
-          </div>
+      <div className="preview-title">Invoice</div>
+      <div className="preview-meta">
+        <div>Invoice Number <strong>{form.invoiceNumber || "—"}</strong></div>
+        <div>Invoice Date <strong>{form.invoiceDate || "—"}</strong></div>
+        <div>Payment Due <strong>{form.dueDate || "—"}</strong></div>
+      </div>
         </div>
         <div className="preview-logo">{form.billedBy?.name || "COMPANY"}</div>
       </div>
 
       <div className="preview-parties">
-        <PreviewParty label="Billed by" party={form.billedBy} />
-        <PreviewParty label="Billed to" party={form.billedTo} />
+        <PreviewParty label="Issued By" party={form.billedBy} />
+        <PreviewParty label="Customer" party={form.billedTo} />
       </div>
 
       <div className="preview-supply">
         <div>Place of Supply <strong>{form.placeOfSupply || "—"}</strong></div>
-        <div>Country of Supply <strong>{form.countryOfSupply || "India"}</strong></div>
+        <div>Country <strong>{form.countryOfSupply || "India"}</strong></div>
       </div>
 
       <div className="preview-table">
         <div className="preview-table-head">
           <span>Item</span>
-          <span>Qty</span>
-          <span>Rate</span>
-          <span>Amount</span>
+          <span>Quantity</span>
+          <span>Unit Price</span>
+          <span>Total</span>
         </div>
         {(form.lineItems || []).map((item, i) => (
           <div className="preview-table-row" key={i}>
@@ -103,14 +103,14 @@ function InvoicePreview({ form, totals }) {
       </div>
 
       <div className="preview-totals">
-        <div className="preview-total-row"><span>Sub Total</span><span className="amount" title={formatCurrency(totals.subTotal)}>{formatCurrencyCompact(totals.subTotal)}</span></div>
+        <div className="preview-total-row"><span>Subtotal</span><span className="amount" title={formatCurrency(totals.subTotal)}>{formatCurrencyCompact(totals.subTotal)}</span></div>
         {form.discountPercent > 0 && (
           <div className="preview-total-row discount"><span>Discount ({form.discountPercent}%)</span><span className="amount" title={formatCurrency(totals.discountAmount)}>- {formatCurrencyCompact(totals.discountAmount)}</span></div>
         )}
         <div className="preview-total-row"><span>Taxable Amount</span><span className="amount" title={formatCurrency(totals.taxableAmount)}>{formatCurrencyCompact(totals.taxableAmount)}</span></div>
-        <div className="preview-total-row"><span>CGST</span><span className="amount" title={formatCurrency(totals.totalCGST)}>{formatCurrencyCompact(totals.totalCGST)}</span></div>
-        <div className="preview-total-row"><span>SGST</span><span className="amount" title={formatCurrency(totals.totalSGST)}>{formatCurrencyCompact(totals.totalSGST)}</span></div>
-        <div className="preview-total-row grand"><span>Total</span><span className="amount" title={formatCurrency(totals.grandTotal)}>{formatCurrencyCompact(totals.grandTotal)}</span></div>
+        <div className="preview-total-row"><span>Central GST (CGST)</span><span className="amount" title={formatCurrency(totals.totalCGST)}>{formatCurrencyCompact(totals.totalCGST)}</span></div>
+        <div className="preview-total-row"><span>State GST (SGST)</span><span className="amount" title={formatCurrency(totals.totalSGST)}>{formatCurrencyCompact(totals.totalSGST)}</span></div>
+        <div className="preview-total-row grand"><span>Total Amount</span><span className="amount" title={formatCurrency(totals.grandTotal)}>{formatCurrencyCompact(totals.grandTotal)}</span></div>
       </div>
     </div>
   );
@@ -138,7 +138,7 @@ export default function InvoiceCreate() {
         earlyPayDate: toInputDate(d.earlyPayDate),
       });
       setLoading(false);
-    }).catch((err) => { showToast(getErrorMessage(err, "Failed to load invoice"), "error"); setLoading(false); });
+    }).catch((err) => { showToast(getErrorMessage(err, "We couldn't load this invoice. Please try again."), "error"); setLoading(false); });
   }, [id]);
 
   // ── Field helpers ──
@@ -182,10 +182,10 @@ export default function InvoiceCreate() {
       } else {
         res = await invoiceApi.create(form);
       }
-      showToast(isEdit ? "Invoice updated!" : "Invoice created!");
+      showToast(isEdit ? "Invoice updated successfully." : "Invoice created successfully.");
       navigate(`/invoice/${res.data.data.id}`);
     } catch (err) {
-      showToast(getErrorMessage(err, "Save failed"), "error");
+      showToast(getErrorMessage(err, "We couldn't save this invoice. Please check the details and try again."), "error");
     } finally {
       setSaving(false);
     }
@@ -201,11 +201,11 @@ export default function InvoiceCreate() {
   return (
     <form onSubmit={handleSubmit}>
       <div className="page-header">
-        <h1 className="page-title">{isEdit ? "Edit" : "New"} <span>Invoice</span></h1>
+        <h1 className="page-title">{isEdit ? "Edit" : "Create"} <span>Invoice</span></h1>
         <div className="flex gap-2">
           <button type="button" className="btn btn-secondary" onClick={() => navigate(-1)}>Cancel</button>
           <button type="submit" className="btn btn-primary" disabled={saving}>
-            {saving ? <span className="spinner" /> : isEdit ? "💾 Save Changes" : "✨ Create Invoice"}
+            {saving ? <span className="spinner" /> : isEdit ? "💾 Save Invoice" : "✨ Create Invoice"}
           </button>
         </div>
       </div>
@@ -223,23 +223,23 @@ export default function InvoiceCreate() {
             <Field label="Invoice Date" required>
               <input type="date" className="form-input" value={form.invoiceDate} onChange={(e) => set("invoiceDate", e.target.value)} required />
             </Field>
-            <Field label="Due Date" required>
+            <Field label="Payment Due" required>
               <input type="date" className="form-input" value={form.dueDate} onChange={(e) => set("dueDate", e.target.value)} required />
             </Field>
-            <Field label="Status">
+            <Field label="Invoice Status">
               <select className="form-select" value={form.status} onChange={(e) => set("status", e.target.value)}>
                 {["draft","sent","paid","overdue","cancelled"].map((s) => (
                   <option key={s} value={s}>{s.charAt(0).toUpperCase() + s.slice(1)}</option>
                 ))}
               </select>
             </Field>
-            <Field label="Place of Supply">
+            <Field label="Place of Supply (State)">
               <select className="form-select" value={form.placeOfSupply} onChange={(e) => set("placeOfSupply", e.target.value)}>
                 <option value="">Select state</option>
                 {indianStates.map((s) => <option key={s} value={s}>{s}</option>)}
               </select>
             </Field>
-            <Field label="Country of Supply">
+            <Field label="Country">
               <input className="form-input" value={form.countryOfSupply} onChange={(e) => set("countryOfSupply", e.target.value)} />
             </Field>
               </div>
@@ -250,7 +250,7 @@ export default function InvoiceCreate() {
       <div className="form-grid form-grid-2" style={{ marginBottom: 20 }}>
         {/* Billed By */}
         <div className="form-section" style={{ marginBottom: 0 }}>
-          <SectionHeader icon="🏢" title="Billed By (Your Company)" />
+          <SectionHeader icon="🏢" title="Issued By (Your Company)" />
           <div className="form-section-body">
             <div className="form-grid">
               <Field label="Company Name" required>
@@ -269,10 +269,10 @@ export default function InvoiceCreate() {
                 </Field>
               </div>
               <div className="form-grid form-grid-2">
-                <Field label="Pincode"><input className="form-input" value={form.billedBy.pincode} onChange={(e) => set("billedBy.pincode", e.target.value)} /></Field>
-                <Field label="PAN"><input className="form-input" value={form.billedBy.pan} onChange={(e) => set("billedBy.pan", e.target.value)} /></Field>
-              </div>
-              <Field label="GSTIN"><input className="form-input" value={form.billedBy.gstin} onChange={(e) => set("billedBy.gstin", e.target.value)} /></Field>
+              <Field label="Postal Code"><input className="form-input" value={form.billedBy.pincode} onChange={(e) => set("billedBy.pincode", e.target.value)} /></Field>
+              <Field label="PAN"><input className="form-input" value={form.billedBy.pan} onChange={(e) => set("billedBy.pan", e.target.value)} /></Field>
+            </div>
+              <Field label="GSTIN (optional)"><input className="form-input" value={form.billedBy.gstin} onChange={(e) => set("billedBy.gstin", e.target.value)} /></Field>
               <div className="form-grid form-grid-2">
                 <Field label="Email"><input type="email" className="form-input" value={form.billedBy.email} onChange={(e) => set("billedBy.email", e.target.value)} /></Field>
                 <Field label="Phone"><input className="form-input" value={form.billedBy.phone} onChange={(e) => set("billedBy.phone", e.target.value)} /></Field>
@@ -283,10 +283,10 @@ export default function InvoiceCreate() {
 
         {/* Billed To */}
         <div className="form-section" style={{ marginBottom: 0 }}>
-          <SectionHeader icon="👤" title="Billed To (Client)" />
+          <SectionHeader icon="👤" title="Customer Details" />
           <div className="form-section-body">
             <div className="form-grid">
-              <Field label="Client Name" required>
+              <Field label="Customer Name" required>
                 <input className="form-input" value={form.billedTo.name} onChange={(e) => set("billedTo.name", e.target.value)} required />
               </Field>
               <Field label="Address">
@@ -302,10 +302,10 @@ export default function InvoiceCreate() {
                 </Field>
               </div>
               <div className="form-grid form-grid-2">
-                <Field label="Pincode"><input className="form-input" value={form.billedTo.pincode} onChange={(e) => set("billedTo.pincode", e.target.value)} /></Field>
-                <Field label="PAN"><input className="form-input" value={form.billedTo.pan} onChange={(e) => set("billedTo.pan", e.target.value)} /></Field>
-              </div>
-              <Field label="GSTIN"><input className="form-input" value={form.billedTo.gstin} onChange={(e) => set("billedTo.gstin", e.target.value)} /></Field>
+              <Field label="Postal Code"><input className="form-input" value={form.billedTo.pincode} onChange={(e) => set("billedTo.pincode", e.target.value)} /></Field>
+              <Field label="PAN"><input className="form-input" value={form.billedTo.pan} onChange={(e) => set("billedTo.pan", e.target.value)} /></Field>
+            </div>
+              <Field label="GSTIN (optional)"><input className="form-input" value={form.billedTo.gstin} onChange={(e) => set("billedTo.gstin", e.target.value)} /></Field>
               <div className="form-grid form-grid-2">
                 <Field label="Email"><input type="email" className="form-input" value={form.billedTo.email} onChange={(e) => set("billedTo.email", e.target.value)} /></Field>
                 <Field label="Phone"><input className="form-input" value={form.billedTo.phone} onChange={(e) => set("billedTo.phone", e.target.value)} /></Field>
@@ -317,21 +317,18 @@ export default function InvoiceCreate() {
 
       {/* ── Line Items ── */}
       <div className="form-section">
-        <SectionHeader icon="📦" title="Line Items" />
+        <SectionHeader icon="📦" title="Items & Services" />
         <div className="form-section-body">
           <div style={{ overflowX: "auto" }}>
             <table className="line-items-table">
               <thead>
                 <tr>
-                  <th style={{ minWidth: 200 }}>Description *</th>
-                  <th style={{ width: 80 }}>HSN</th>
-                  <th style={{ width: 80 }}>Qty *</th>
-                  <th style={{ width: 110 }}>Rate (₹) *</th>
-                  <th style={{ width: 90 }}>GST %</th>
-                  <th style={{ width: 120 }}>Taxable Amt</th>
-                  <th style={{ width: 100 }}>SGST</th>
-                  <th style={{ width: 100 }}>CGST</th>
-                  <th style={{ width: 120 }}>Amount</th>
+                  <th style={{ minWidth: 220 }}>Item Description *</th>
+                  <th style={{ width: 120 }}>HSN/SKU</th>
+                  <th style={{ width: 90 }}>Quantity *</th>
+                  <th style={{ width: 130 }}>Unit Price (₹) *</th>
+                  <th style={{ width: 110 }}>Tax Rate</th>
+                  <th style={{ width: 140 }}>Line Total</th>
                   <th style={{ width: 44 }}></th>
                 </tr>
               </thead>
@@ -341,14 +338,14 @@ export default function InvoiceCreate() {
                     <td>
                       <input
                         className="form-input"
-                        placeholder="Item description"
+                        placeholder="Product or service description"
                         value={item.description}
                         onChange={(e) => setLineItem(i, "description", e.target.value)}
                         required
                       />
                     </td>
                     <td>
-                      <input className="form-input" value={item.hsn} onChange={(e) => setLineItem(i, "hsn", e.target.value)} placeholder="HSN" />
+                      <input className="form-input" value={item.hsn} onChange={(e) => setLineItem(i, "hsn", e.target.value)} placeholder="HSN/SKU (optional)" />
                     </td>
                     <td>
                       <input
@@ -377,9 +374,6 @@ export default function InvoiceCreate() {
                         {gstRates.map((r) => <option key={r} value={r}>{r}%</option>)}
                       </select>
                     </td>
-                    <td style={{ textAlign: "right", fontWeight: 500 }} title={formatCurrency(item.taxableAmount)}>{formatCurrencyCompact(item.taxableAmount)}</td>
-                    <td style={{ textAlign: "right", color: "var(--text-muted)" }} title={formatCurrency(item.sgst)}>{formatCurrencyCompact(item.sgst)}</td>
-                    <td style={{ textAlign: "right", color: "var(--text-muted)" }} title={formatCurrency(item.cgst)}>{formatCurrencyCompact(item.cgst)}</td>
                     <td style={{ textAlign: "right", fontWeight: 600, color: "var(--primary-light)" }} title={formatCurrency(item.amount)}>{formatCurrencyCompact(item.amount)}</td>
                     <td>
                       {form.lineItems.length > 1 && (
@@ -400,7 +394,7 @@ export default function InvoiceCreate() {
       {/* ── Discount + Totals ── */}
       <div className="adjustments-grid" style={{ marginBottom: 20 }}>
         <div className="form-section" style={{ marginBottom: 0 }}>
-          <SectionHeader icon="💰" title="Adjustments" />
+          <SectionHeader icon="💰" title="Discounts & Adjustments" />
           <div className="form-section-body">
             <div className="form-grid form-grid-2">
               <Field label="Discount (%)">
@@ -411,7 +405,7 @@ export default function InvoiceCreate() {
                   onChange={(e) => set("discountPercent", parseFloat(e.target.value) || 0)}
                 />
               </Field>
-              <Field label="EarlyPay Discount (₹)">
+              <Field label="Early Payment Discount (₹)">
                 <input
                   type="number" min="0" step="0.01"
                   className="form-input"
@@ -419,7 +413,7 @@ export default function InvoiceCreate() {
                   onChange={(e) => set("earlyPayDiscount", parseFloat(e.target.value) || 0)}
                 />
               </Field>
-              <Field label="EarlyPay Deadline">
+              <Field label="Early Payment Deadline">
                 <input type="date" className="form-input" value={form.earlyPayDate} onChange={(e) => set("earlyPayDate", e.target.value)} />
               </Field>
             </div>
@@ -427,18 +421,19 @@ export default function InvoiceCreate() {
         </div>
 
         <div className="totals-box">
-          <div className="total-row"><span>Sub Total</span><span className="amount" title={formatCurrency(totals.subTotal)}>{formatCurrencyCompact(totals.subTotal)}</span></div>
+          <div className="summary-title">Payment Summary</div>
+          <div className="total-row"><span>Subtotal</span><span className="amount" title={formatCurrency(totals.subTotal)}>{formatCurrencyCompact(totals.subTotal)}</span></div>
           {form.discountPercent > 0 && (
             <div className="total-row discount"><span>Discount ({form.discountPercent}%)</span><span className="amount" title={formatCurrency(totals.discountAmount)}>- {formatCurrencyCompact(totals.discountAmount)}</span></div>
           )}
           <div className="total-row"><span>Taxable Amount</span><span className="amount" title={formatCurrency(totals.taxableAmount)}>{formatCurrencyCompact(totals.taxableAmount)}</span></div>
-          <div className="total-row"><span>CGST</span><span className="amount" title={formatCurrency(totals.totalCGST)}>{formatCurrencyCompact(totals.totalCGST)}</span></div>
-          <div className="total-row"><span>SGST</span><span className="amount" title={formatCurrency(totals.totalSGST)}>{formatCurrencyCompact(totals.totalSGST)}</span></div>
-          <div className="total-row grand"><span>Total</span><span className="amount" title={formatCurrency(totals.grandTotal)}>{formatCurrencyCompact(totals.grandTotal)}</span></div>
+          <div className="total-row"><span>Central GST (CGST)</span><span className="amount" title={formatCurrency(totals.totalCGST)}>{formatCurrencyCompact(totals.totalCGST)}</span></div>
+          <div className="total-row"><span>State GST (SGST)</span><span className="amount" title={formatCurrency(totals.totalSGST)}>{formatCurrencyCompact(totals.totalSGST)}</span></div>
+          <div className="total-row grand"><span>Total Amount</span><span className="amount" title={formatCurrency(totals.grandTotal)}>{formatCurrencyCompact(totals.grandTotal)}</span></div>
           {form.earlyPayDiscount > 0 && (
             <>
-              <div className="total-row early"><span>EarlyPay Discount</span><span className="amount" title={formatCurrency(form.earlyPayDiscount)}>- {formatCurrencyCompact(form.earlyPayDiscount)}</span></div>
-              <div className="total-row"><span><strong>EarlyPay Amount</strong></span><span className="amount" title={formatCurrency(totals.earlyPayAmount)}><strong>{formatCurrencyCompact(totals.earlyPayAmount)}</strong></span></div>
+              <div className="total-row early"><span>Early Payment Discount</span><span className="amount" title={formatCurrency(form.earlyPayDiscount)}>- {formatCurrencyCompact(form.earlyPayDiscount)}</span></div>
+              <div className="total-row"><span><strong>Early Payment Total</strong></span><span className="amount" title={formatCurrency(totals.earlyPayAmount)}><strong>{formatCurrencyCompact(totals.earlyPayAmount)}</strong></span></div>
             </>
           )}
         </div>
@@ -446,7 +441,7 @@ export default function InvoiceCreate() {
 
       {/* ── Bank Details ── */}
       <div className="form-section">
-        <SectionHeader icon="🏦" title="Bank & Payment Details" />
+        <SectionHeader icon="🏦" title="Payment Details" />
         <div className="form-section-body">
           <div className="form-grid form-grid-3">
             <Field label="Account Holder Name">
@@ -477,10 +472,10 @@ export default function InvoiceCreate() {
 
       {/* ── Notes ── */}
       <div className="form-section">
-        <SectionHeader icon="📝" title="Terms & Notes" />
+        <SectionHeader icon="📝" title="Payment Terms & Notes" />
         <div className="form-section-body">
           <div className="form-grid form-grid-2">
-            <Field label="Terms and Conditions">
+            <Field label="Payment Terms">
               <textarea
                 className="form-textarea"
                 style={{ minHeight: 100 }}
@@ -504,8 +499,8 @@ export default function InvoiceCreate() {
           <div className="flex flex-end gap-2" style={{ paddingBottom: 40 }}>
             <button type="button" className="btn btn-secondary" onClick={() => navigate(-1)}>Cancel</button>
             <button type="submit" className="btn btn-primary" disabled={saving}>
-              {saving ? <span className="spinner" /> : isEdit ? "💾 Save Changes" : "✨ Create Invoice"}
-            </button>
+            {saving ? <span className="spinner" /> : isEdit ? "💾 Save Invoice" : "✨ Create Invoice"}
+          </button>
           </div>
         </div>
 
@@ -518,7 +513,7 @@ export default function InvoiceCreate() {
       <div className="action-bar">
         <button type="button" className="btn btn-secondary" onClick={() => navigate(-1)}>Cancel</button>
         <button type="submit" className="btn btn-primary" disabled={saving}>
-          {saving ? <span className="spinner" /> : isEdit ? "💾 Save Changes" : "✨ Create Invoice"}
+          {saving ? <span className="spinner" /> : isEdit ? "💾 Save Invoice" : "✨ Create Invoice"}
         </button>
       </div>
     </form>

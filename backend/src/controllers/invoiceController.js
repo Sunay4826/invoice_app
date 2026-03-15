@@ -261,13 +261,10 @@ const generateInvoiceHTML = (invoice) => {
     .map(
       (item, i) => `
     <tr>
-      <td>${i + 1}. ${item.description}</td>
-      <td>${item.hsn || "-"}</td>
+      <td>${item.description || `Item ${i + 1}`}${item.hsn ? `<div class="muted">HSN/SKU: ${item.hsn}</div>` : ""}</td>
       <td>${item.qty}</td>
+      <td>₹${fmt(item.rate)}</td>
       <td>${item.gstPercent || 0}%</td>
-      <td>₹${fmt(item.taxableAmount)}</td>
-      <td>₹${fmt(item.sgst)}</td>
-      <td>₹${fmt(item.cgst)}</td>
       <td>₹${fmt(item.amount)}</td>
     </tr>`
     )
@@ -281,7 +278,7 @@ const generateInvoiceHTML = (invoice) => {
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body { font-family: 'Segoe UI', Arial, sans-serif; font-size: 13px; color: #1a1a2e; background: #fff; padding: 40px; }
   .header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 28px; }
-  .invoice-title { font-size: 32px; font-weight: 800; color: #7c3aed; letter-spacing: -1px; }
+  .invoice-title { font-size: 30px; font-weight: 700; color: #0f172a; letter-spacing: -0.5px; }
   .meta { margin-top: 10px; line-height: 1.8; }
   .meta span { font-weight: 700; }
   .logo-box { background: #1a1a2e; color: #fff; padding: 14px 20px; font-size: 18px; font-weight: 900; border-radius: 4px; letter-spacing: 1px; }
@@ -291,7 +288,7 @@ const generateInvoiceHTML = (invoice) => {
   .party-box p { line-height: 1.7; color: #374151; }
   .supply-row { display: flex; justify-content: space-between; background: #faf9ff; border: 1px solid #e9d5ff; border-radius: 6px; padding: 10px 16px; margin-bottom: 16px; font-size: 13px; }
   table { width: 100%; border-collapse: collapse; margin-bottom: 24px; }
-  thead tr { background: #7c3aed; color: #fff; }
+  thead tr { background: #6366f1; color: #fff; }
   thead th { padding: 10px 12px; text-align: left; font-size: 12px; font-weight: 600; }
   tbody tr { border-bottom: 1px solid #f3f4f6; }
   tbody tr:hover { background: #faf9ff; }
@@ -307,7 +304,8 @@ const generateInvoiceHTML = (invoice) => {
   .total-row.early { color: #f59e0b; }
   .words { font-size: 12px; color: #6b7280; margin: 4px 0 12px; }
   .terms { margin-top: 20px; }
-  .terms h4 { color: #7c3aed; font-weight: 700; margin-bottom: 8px; }
+  .terms h4 { color: #0f172a; font-weight: 600; margin-bottom: 8px; }
+  .muted { font-size: 11px; color: #64748b; margin-top: 4px; }
   .terms p, .terms li { color: #374151; line-height: 1.7; font-size: 12px; }
   .footer { margin-top: 32px; border-top: 1px solid #e5e7eb; padding-top: 16px; font-size: 12px; color: #6b7280; }
   .status-badge { display: inline-block; padding: 3px 10px; border-radius: 99px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .5px;
@@ -320,9 +318,9 @@ const generateInvoiceHTML = (invoice) => {
   <div>
     <div class="invoice-title">Invoice</div>
     <div class="meta">
-      Invoice# &nbsp;&nbsp;<span>${invoice.invoiceNumber}</span><br/>
+      Invoice Number &nbsp;&nbsp;<span>${invoice.invoiceNumber}</span><br/>
       Invoice Date &nbsp;&nbsp;<span>${fmtDate(invoice.invoiceDate)}</span><br/>
-      Due Date &nbsp;&nbsp;<span>${fmtDate(invoice.dueDate)}</span><br/>
+      Payment Due &nbsp;&nbsp;<span>${fmtDate(invoice.dueDate)}</span><br/>
       Status &nbsp;&nbsp;<span class="status-badge">${invoice.status}</span>
     </div>
   </div>
@@ -331,7 +329,7 @@ const generateInvoiceHTML = (invoice) => {
 
 <div class="parties">
   <div class="party-box">
-    <h4>Billed by</h4>
+    <h4>Issued By</h4>
     <p><strong>${invoice.billedBy?.name}</strong><br/>
     ${invoice.billedBy?.address}<br/>
     ${invoice.billedBy?.city}${invoice.billedBy?.city ? ", " : ""}${invoice.billedBy?.state}${invoice.billedBy?.pincode ? " - " + invoice.billedBy?.pincode : ""}<br/>
@@ -339,7 +337,7 @@ const generateInvoiceHTML = (invoice) => {
     ${invoice.billedBy?.pan ? "PAN: " + invoice.billedBy.pan : ""}</p>
   </div>
   <div class="party-box">
-    <h4>Billed to</h4>
+    <h4>Customer</h4>
     <p><strong>${invoice.billedTo?.name}</strong><br/>
     ${invoice.billedTo?.address}<br/>
     ${invoice.billedTo?.city}${invoice.billedTo?.city ? ", " : ""}${invoice.billedTo?.state}${invoice.billedTo?.pincode ? " - " + invoice.billedTo?.pincode : ""}<br/>
@@ -348,22 +346,19 @@ const generateInvoiceHTML = (invoice) => {
   </div>
 </div>
 
-<div class="supply-row">
+  <div class="supply-row">
   <div>Place of Supply &nbsp; <strong>${invoice.placeOfSupply}</strong></div>
-  <div>Country of Supply &nbsp; <strong>${invoice.countryOfSupply}</strong></div>
+  <div>Country &nbsp; <strong>${invoice.countryOfSupply}</strong></div>
 </div>
 
 <table>
   <thead>
     <tr>
-      <th>Item # / Item Description</th>
-      <th>HSN</th>
-      <th>Qty.</th>
-      <th>GST</th>
-      <th>Taxable Amount</th>
-      <th>SGST</th>
-      <th>CGST</th>
-      <th>Amount</th>
+      <th>Item Description</th>
+      <th>Quantity</th>
+      <th>Unit Price</th>
+      <th>Tax Rate</th>
+      <th>Line Total</th>
     </tr>
   </thead>
   <tbody>${rows}</tbody>
@@ -373,7 +368,7 @@ const generateInvoiceHTML = (invoice) => {
   <div>
     ${invoice.bankDetails?.accountNumber ? `
     <div class="bank-box">
-      <h4>Bank &amp; Payment Details</h4>
+      <h4>Payment Details</h4>
       <div class="bank-row"><span class="bank-label">Account Holder</span><span>${invoice.bankDetails.accountHolderName}</span></div>
       <div class="bank-row"><span class="bank-label">Account Number</span><span>${invoice.bankDetails.accountNumber}</span></div>
       <div class="bank-row"><span class="bank-label">IFSC</span><span>${invoice.bankDetails.ifsc}</span></div>
@@ -381,21 +376,21 @@ const generateInvoiceHTML = (invoice) => {
       <div class="bank-row"><span class="bank-label">Bank</span><span>${invoice.bankDetails.bankName}</span></div>
       ${invoice.bankDetails.upi ? `<div class="bank-row"><span class="bank-label">UPI</span><span>${invoice.bankDetails.upi}</span></div>` : ""}
     </div>` : ""}
-    ${invoice.termsAndConditions ? `<div class="terms"><h4>Terms and Conditions</h4><p>${invoice.termsAndConditions.replace(/\n/g, "<br/>")}</p></div>` : ""}
-    ${invoice.additionalNotes ? `<div class="terms"><h4>Additional Notes</h4><p>${invoice.additionalNotes.replace(/\n/g, "<br/>")}</p></div>` : ""}
+    ${invoice.termsAndConditions ? `<div class="terms"><h4>Payment Terms</h4><p>${invoice.termsAndConditions.replace(/\n/g, "<br/>")}</p></div>` : ""}
+    ${invoice.additionalNotes ? `<div class="terms"><h4>Notes</h4><p>${invoice.additionalNotes.replace(/\n/g, "<br/>")}</p></div>` : ""}
   </div>
   <div class="totals">
-    <div class="total-row"><span>Sub Total</span><span>₹${fmt(invoice.subTotal)}</span></div>
+    <div class="total-row"><span>Subtotal</span><span>₹${fmt(invoice.subTotal)}</span></div>
     ${invoice.discountPercent ? `<div class="total-row discount"><span>Discount (${invoice.discountPercent}%)</span><span>- ₹${fmt(invoice.discountAmount)}</span></div>` : ""}
     <div class="total-row"><span>Taxable Amount</span><span>₹${fmt(invoice.taxableAmount)}</span></div>
-    ${invoice.totalCGST ? `<div class="total-row"><span>CGST</span><span>₹${fmt(invoice.totalCGST)}</span></div>` : ""}
-    ${invoice.totalSGST ? `<div class="total-row"><span>SGST</span><span>₹${fmt(invoice.totalSGST)}</span></div>` : ""}
-    ${invoice.totalIGST ? `<div class="total-row"><span>IGST</span><span>₹${fmt(invoice.totalIGST)}</span></div>` : ""}
-    <div class="total-row grand"><span>Total</span><span>₹${fmt(invoice.grandTotal)}</span></div>
+    ${invoice.totalCGST ? `<div class="total-row"><span>Central GST (CGST)</span><span>₹${fmt(invoice.totalCGST)}</span></div>` : ""}
+    ${invoice.totalSGST ? `<div class="total-row"><span>State GST (SGST)</span><span>₹${fmt(invoice.totalSGST)}</span></div>` : ""}
+    ${invoice.totalIGST ? `<div class="total-row"><span>Integrated GST (IGST)</span><span>₹${fmt(invoice.totalIGST)}</span></div>` : ""}
+    <div class="total-row grand"><span>Total Amount</span><span>₹${fmt(invoice.grandTotal)}</span></div>
     <div class="words">${invoice.totalInWords}</div>
     ${invoice.earlyPayDiscount ? `
-    <div class="total-row early"><span>EarlyPay Discount${invoice.earlyPayDate ? " (before " + fmtDate(invoice.earlyPayDate) + ")" : ""}</span><span>₹${fmt(invoice.earlyPayDiscount)}</span></div>
-    <div class="total-row"><span><strong>EarlyPay Amount</strong></span><span><strong>₹${fmt(invoice.earlyPayAmount)}</strong></span></div>
+    <div class="total-row early"><span>Early Payment Discount${invoice.earlyPayDate ? " (before " + fmtDate(invoice.earlyPayDate) + ")" : ""}</span><span>₹${fmt(invoice.earlyPayDiscount)}</span></div>
+    <div class="total-row"><span><strong>Early Payment Total</strong></span><span><strong>₹${fmt(invoice.earlyPayAmount)}</strong></span></div>
     ` : ""}
   </div>
 </div>

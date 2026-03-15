@@ -40,7 +40,7 @@ export default function Login() {
     <div className="auth-page">
       <div className="auth-card">
         <div className="auth-title">Welcome back</div>
-        <div className="auth-sub">Login with email or username</div>
+        <div className="auth-sub">Sign in with your email or username</div>
 
         <form onSubmit={handleSubmit}>
           <div className="form-group">
@@ -49,7 +49,7 @@ export default function Login() {
               className="form-input"
               value={identifier}
               onChange={(e) => setIdentifier(e.target.value)}
-              placeholder="you@example.com"
+              placeholder="you@example.com or yourname"
               required
             />
           </div>

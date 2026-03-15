@@ -36,10 +36,10 @@ export default function InvoiceList() {
 
   const handleDelete = async (id, e) => {
     e.stopPropagation();
-    if (!window.confirm("Delete this invoice? This cannot be undone.")) return;
+    if (!window.confirm("Are you sure you want to delete this invoice? This action cannot be undone.")) return;
     try {
       await invoiceApi.delete(id);
-      showToast("Invoice deleted");
+      showToast("Invoice deleted successfully.");
       fetchInvoices();
     } catch (err) {
       showToast(getErrorMessage(err, "Delete failed"), "error");
@@ -50,7 +50,7 @@ export default function InvoiceList() {
     e.stopPropagation();
     try {
       await invoiceApi.updateStatus(id, status);
-      showToast(`Status updated to ${status}`);
+      showToast(`Status updated to ${status}.`);
       fetchInvoices();
     } catch (err) {
       showToast(getErrorMessage(err, "Update failed"), "error");
@@ -60,9 +60,9 @@ export default function InvoiceList() {
   return (
     <div>
       <div className="page-header">
-        <h1 className="page-title">All <span>Invoices</span></h1>
+        <h1 className="page-title">Invoices <span>Overview</span></h1>
         <button className="btn btn-primary" onClick={() => navigate("/create")}>
-          ✨ New Invoice
+          ✨ Create Invoice
         </button>
       </div>
 
@@ -74,26 +74,26 @@ export default function InvoiceList() {
           <div className="stat-sub">All time</div>
         </div>
         <div className="stat-card green">
-          <div className="stat-label">Total Paid</div>
+          <div className="stat-label">Collected Revenue</div>
           <div className="stat-value">{formatCurrencyCompact(stats.paid)}</div>
-          <div className="stat-sub">Revenue collected</div>
+          <div className="stat-sub">Payments received</div>
         </div>
         <div className="stat-card red">
-          <div className="stat-label">Overdue</div>
+          <div className="stat-label">Overdue Invoices</div>
           <div className="stat-value">{stats.overdue}</div>
-          <div className="stat-sub">Need attention</div>
+          <div className="stat-sub">Requires follow‑up</div>
         </div>
         <div className="stat-card amber">
           <div className="stat-label">Drafts</div>
           <div className="stat-value">{stats.draft}</div>
-          <div className="stat-sub">Pending send</div>
+          <div className="stat-sub">Not sent yet</div>
         </div>
       </div>
 
       {/* Table */}
       <div className="card">
         <div className="card-header">
-          <span className="card-title">Invoices</span>
+          <span className="card-title">Invoice List</span>
           <select
             className="form-select"
             style={{ width: "auto", padding: "6px 10px", fontSize: 13 }}
@@ -116,13 +116,13 @@ export default function InvoiceList() {
             <div className="empty-hero">
               <div className="empty-badge">Getting Started</div>
               <h3>Ready to create your first invoice</h3>
-              <p>Add client details, line items, and download a professional PDF in minutes.</p>
+              <p>Add customer details, line items, and download a professional PDF in minutes.</p>
               <div className="empty-actions">
                 <button className="btn btn-primary" onClick={() => navigate("/create")}>
-                  ✨ Create Invoice
+                  ✨ Create Your First Invoice
                 </button>
                 <button className="btn btn-secondary" onClick={() => navigate("/create")}>
-                  Use Blank Template
+                  Start From Scratch
                 </button>
               </div>
             </div>
@@ -130,22 +130,22 @@ export default function InvoiceList() {
               <div className="empty-step">
                 <span className="empty-step-num">1</span>
                 <div>
-                  <div className="empty-step-title">Add client & company</div>
-                  <div className="empty-step-sub">Fill billed by and billed to details.</div>
+                  <div className="empty-step-title">Add company & customer</div>
+                  <div className="empty-step-sub">Fill issued by and customer details.</div>
                 </div>
               </div>
               <div className="empty-step">
                 <span className="empty-step-num">2</span>
                 <div>
                   <div className="empty-step-title">Add line items</div>
-                  <div className="empty-step-sub">Enter qty, rate and GST.</div>
+                  <div className="empty-step-sub">Enter quantity, unit price, and tax rate.</div>
                 </div>
               </div>
               <div className="empty-step">
                 <span className="empty-step-num">3</span>
                 <div>
                   <div className="empty-step-title">Save & download</div>
-                  <div className="empty-step-sub">Generate a PDF instantly.</div>
+                  <div className="empty-step-sub">Generate a PDF in seconds.</div>
                 </div>
               </div>
             </div>
@@ -155,11 +155,11 @@ export default function InvoiceList() {
             <table className="invoice-table">
               <thead>
                 <tr>
-                  <th>Invoice #</th>
-                  <th>Client</th>
-                  <th>Date</th>
-                  <th>Due</th>
-                  <th>Amount</th>
+                  <th>Invoice Number</th>
+                  <th>Customer</th>
+                  <th>Invoice Date</th>
+                  <th>Payment Due</th>
+                  <th>Total</th>
                   <th>Status</th>
                   <th>Actions</th>
                 </tr>
