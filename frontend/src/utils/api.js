@@ -35,7 +35,6 @@ export const invoiceApi = {
   delete: (id) => API.delete(`/invoices/${id}`),
   updateStatus: (id, status) => API.patch(`/invoices/${id}/status`, { status }),
   getHTMLUrl: (id) => `${API.defaults.baseURL}/invoices/${id}/html`,
-  downloadPDF: (id) => API.get(`/invoices/${id}/pdf`, { responseType: "blob" }),
 };
 
 export default API;

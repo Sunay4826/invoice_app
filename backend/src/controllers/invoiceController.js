@@ -1,5 +1,4 @@
 const prisma = require("../prisma");
-const puppeteer = require("puppeteer");
 
 // Helper: Convert number to words (Indian system)
 function numberToWords(num) {
@@ -424,46 +423,6 @@ const getInvoiceHTML = async (req, res) => {
   }
 };
 
-// GET Invoice PDF (download)
-const getInvoicePDF = async (req, res) => {
-  let browser;
-  try {
-    const invoice = await prisma.invoice.findUnique({
-      where: { id: req.params.id },
-    });
-    if (!invoice) return res.status(404).json({ success: false, message: "Invoice not found" });
-
-    const html = generateInvoiceHTML(invoice);
-
-    const executablePath =
-      process.env.PUPPETEER_EXECUTABLE_PATH ||
-      process.env.CHROME_BIN ||
-      undefined;
-
-    browser = await puppeteer.launch({
-      args: ["--no-sandbox", "--disable-setuid-sandbox"],
-      headless: "new",
-      executablePath,
-    });
-    const page = await browser.newPage();
-    await page.setContent(html, { waitUntil: "networkidle0" });
-    const pdfBuffer = await page.pdf({
-      format: "A4",
-      printBackground: true,
-      margin: { top: "20px", right: "20px", bottom: "20px", left: "20px" },
-    });
-
-    const safeNumber = String(invoice.invoiceNumber || "invoice").replace(/[^a-zA-Z0-9-_]/g, "_");
-    res.setHeader("Content-Type", "application/pdf");
-    res.setHeader("Content-Disposition", `attachment; filename="invoice-${safeNumber}.pdf"`);
-    res.setHeader("Content-Length", pdfBuffer.length);
-    res.send(pdfBuffer);
-  } catch (err) {
-    res.status(500).json({ success: false, message: err.message });
-  } finally {
-    if (browser) await browser.close();
-  }
-};
 
 module.exports = {
   createInvoice,
@@ -473,5 +432,5 @@ module.exports = {
   deleteInvoice,
   updateStatus,
   getInvoiceHTML,
-  getInvoicePDF,
+  
 };

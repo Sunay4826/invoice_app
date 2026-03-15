@@ -8,7 +8,6 @@ const {
   deleteInvoice,
   updateStatus,
   getInvoiceHTML,
-  getInvoicePDF,
 } = require("../controllers/invoiceController");
 const auth = require("../middleware/auth");
 
@@ -22,6 +21,5 @@ router.delete("/:id", auth, deleteInvoice);
 // Special
 router.patch("/:id/status", auth, updateStatus);
 router.get("/:id/html", auth, getInvoiceHTML);
-router.get("/:id/pdf", auth, getInvoicePDF);
 
 module.exports = router;

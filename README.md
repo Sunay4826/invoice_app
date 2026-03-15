@@ -86,14 +86,6 @@ Frontend runs on **http://localhost:3000**
 The `/api/invoices/:id/html` endpoint returns a print-ready HTML page.
 On the frontend, clicking **Download PDF** opens this in a new tab — use your browser's **Print → Save as PDF** to download.
 
-### Render Notes (Puppeteer)
-If deploying on Render, set:
-```
-PUPPETEER_SKIP_DOWNLOAD=1
-CHROME_BIN=/usr/bin/chromium
-```
-and ensure Chromium is installed (included in `render.yaml`).
-
 ---
 
 ## ✨ Features

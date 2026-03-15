@@ -22,17 +22,18 @@ export default function InvoiceView() {
   const handleDownloadPDF = async () => {
     setDownloading(true);
     try {
-      const res = await invoiceApi.downloadPDF(id);
-      const blob = new Blob([res.data], { type: "application/pdf" });
-      const url = window.URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.href = url;
-      link.download = `invoice-${invoice.invoiceNumber}.pdf`;
-      document.body.appendChild(link);
-      link.click();
-      link.remove();
-      window.URL.revokeObjectURL(url);
-      showToast("Invoice PDF downloaded");
+      const htmlUrl = invoiceApi.getHTMLUrl(id);
+      const win = window.open(htmlUrl, "_blank");
+      if (!win) {
+        showToast("Please allow popups to download PDF", "error");
+        return;
+      }
+      win.onload = () => {
+        setTimeout(() => {
+          win.print();
+        }, 500);
+      };
+      showToast("PDF preview opened — use Print → Save as PDF");
     } catch (err) {
       showToast(getErrorMessage(err, "Download failed"), "error");
     } finally {
