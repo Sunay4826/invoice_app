@@ -6,7 +6,7 @@ A complete invoice management system built with React, Node.js, Express, Prisma,
 
 ```
 invoice-app/
-├── backend/          # Node.js + Express + MongoDB API
+├── backend/          # Node.js + Express + Prisma + PostgreSQL API
 └── frontend/         # React SPA
 ```
 
@@ -31,7 +31,7 @@ npx prisma db push
 npm run dev
 ```
 
-Backend runs on **http://localhost:5000**
+Backend runs on **http://localhost:5001**
 
 ### Frontend Setup
 
@@ -63,7 +63,6 @@ Frontend runs on **http://localhost:3000**
 | DELETE | `/api/invoices/:id` | Delete invoice (auth required) |
 | PATCH | `/api/invoices/:id/status` | Update status only (auth required) |
 | GET | `/api/invoices/:id/html` | Get printable HTML (auth required) |
-| GET | `/api/invoices/:id/pdf` | Download PDF (auth required) |
 | GET | `/api/health` | Health check |
 
 ---
@@ -103,6 +102,6 @@ On the frontend, clicking **Download PDF** opens this in a new tab — use your 
 ## 🛠️ Tech Stack
 
 - **Frontend**: React 18, React Router v6, Axios
-- **Backend**: Node.js, Express 4, Mongoose
-- **Database**: MongoDB
+- **Backend**: Node.js, Express 4, Prisma ORM
+- **Database**: PostgreSQL
 - **Styling**: Custom CSS with design tokens
