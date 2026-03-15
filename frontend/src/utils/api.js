@@ -34,7 +34,11 @@ export const invoiceApi = {
   update: (id, data) => API.put(`/invoices/${id}`, data),
   delete: (id) => API.delete(`/invoices/${id}`),
   updateStatus: (id, status) => API.patch(`/invoices/${id}/status`, { status }),
-  getHTMLUrl: (id) => `${API.defaults.baseURL}/invoices/${id}/html`,
+  getHTMLUrl: (id) => {
+    const token = localStorage.getItem("auth_token");
+    const base = `${API.defaults.baseURL}/invoices/${id}/html`;
+    return token ? `${base}?token=${encodeURIComponent(token)}` : base;
+  },
 };
 
 export default API;
