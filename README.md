@@ -45,6 +45,13 @@ Frontend runs on **http://localhost:3000**
 
 ---
 
+## 🌐 Live Demo
+
+- **Frontend**: http://invoice-app-1-ra6b.onrender.com/
+- **Backend Health**: https://invoice-app-ta1s.onrender.com/api/health
+
+---
+
 ## 🔌 API Endpoints
 
 ### Auth
